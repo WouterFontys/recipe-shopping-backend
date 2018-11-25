@@ -1,33 +1,31 @@
 package com.musthavecaffeine.recipeapp.domain;
 
-import java.util.Set;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 @Entity
-public class Ingredient {
-	
+public class Favorite {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@ApiModelProperty(notes = "The database generated favorite ID")
 	private Long id;
 	
 	@Version
+	@ApiModelProperty(notes = "The auto-generated version of the favorite")
 	private Integer version;
 	
-	private String name;
+//	@ManyToOne
+//	private Recipe recipe;
 	
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "ingredient")
-	Set<IngredientRow> ingredientRow;
+//	@ManyToOne
+//	private User user;
 }

@@ -1,11 +1,16 @@
 package com.musthavecaffeine.recipeapp.repositories;
 
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 
 import com.musthavecaffeine.recipeapp.domain.Recipe;
 
-@RepositoryRestResource
-public interface RecipeRepository extends CrudRepository<Recipe, Integer> {
+public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
+	Recipe findByName(String name);
+	
+	@Override
+	Optional<Recipe> findById(Long id);
 }

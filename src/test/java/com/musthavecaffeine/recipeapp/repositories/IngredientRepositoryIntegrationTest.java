@@ -1,5 +1,5 @@
 package com.musthavecaffeine.recipeapp.repositories;
-
+/*
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
@@ -38,3 +38,4 @@ public class IngredientRepositoryIntegrationTest {
 	      .isEqualTo(ingredient.getName());
 	}
 }
+*/

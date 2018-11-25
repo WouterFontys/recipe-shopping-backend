@@ -1,16 +1,19 @@
 package com.musthavecaffeine.recipeapp.services;
 
-import com.musthavecaffeine.recipeapp.domain.Ingredient;
+import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDTO;
+import com.musthavecaffeine.recipeapp.api.v1.model.IngredientListDTO;
 
 public interface IngredientService {
 
-	Iterable<Ingredient> listAllIngredients();
+	IngredientListDTO getAllIngredients();
 	
-	Ingredient getIngredientById(Integer id);
+	IngredientDTO getIngredientById(Long id);
 	
-	Ingredient getIngredientByName(String name);
+	IngredientDTO getIngredientByName(String name);
 	
-	Ingredient saveIngredient(Ingredient ingredient);
+	IngredientDTO createNewIngredient(IngredientDTO ingredientDto);
 	
-	void deleteIngredient(Integer id);
+	IngredientDTO saveIngredientByDto(Long id, IngredientDTO ingredientDto);
+	
+	void deleteIngredientById(Long id);
 }

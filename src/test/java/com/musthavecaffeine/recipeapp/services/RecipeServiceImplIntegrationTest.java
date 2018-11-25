@@ -18,16 +18,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.musthavecaffeine.recipeapp.api.v1.mapper.IngredientMapper;
+import com.musthavecaffeine.recipeapp.api.v1.mapper.RecipeMapper;
 import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDTO;
+import com.musthavecaffeine.recipeapp.api.v1.model.RecipeDTO;
 import com.musthavecaffeine.recipeapp.bootstrap.SpringJpaBootstrap;
 import com.musthavecaffeine.recipeapp.domain.Ingredient;
+import com.musthavecaffeine.recipeapp.domain.Recipe;
 import com.musthavecaffeine.recipeapp.repositories.IngredientRepository;
 import com.musthavecaffeine.recipeapp.repositories.IngredientRowRepository;
 import com.musthavecaffeine.recipeapp.repositories.RecipeRepository;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class IngredientServiceImplIntegrationTest {
+public class RecipeServiceImplIntegrationTest {
 
 	@Autowired
 	IngredientRepository ingredientRepository;
@@ -38,34 +41,38 @@ public class IngredientServiceImplIntegrationTest {
 	@Autowired
 	RecipeRepository recipeRepository;
 
-	IngredientService ingredientService;
+	RecipeService recipeService;
 	
 	@Before
 	public void setUp() throws Exception {
 		SpringJpaBootstrap bootstrap = new SpringJpaBootstrap(ingredientRepository, ingredientRowRepository, recipeRepository);
 		bootstrap.run();
 		
-		ingredientService = new IngredientServiceImpl(IngredientMapper.INSTANCE, ingredientRepository);
+		//recipeService = new RecipeServiceImpl(RecipeMapper.INSTANCE, recipeRepository);
 	}
 	
 	@Test
 	public void getIngredientByName() {
-		long id = getIngredientIdValue();
+		long id = getRecipeIdValue();
 		
-		Ingredient ingredient = ingredientRepository.getOne(id);
-		assertNotNull(ingredient);
+		Recipe recipe = recipeRepository.getOne(id);
+		assertNotNull(recipe);
 		
-		IngredientDTO ingredientDto = ingredientService.getIngredientByName(ingredient.getName());
-		assertNotNull(ingredientDto);
-		
-		assertEquals(ingredient.getId(), ingredientDto.getId());
-		assertEquals(ingredient.getName(), ingredientDto.getName());
+		RecipeDTO recipeDto = recipeService.getRecipeById(recipe.getId());
+//		assertNotNull(recipeDto);
+//		
+//		assertEquals(recipe.getId(), recipeDto.getId());
+//		assertEquals(recipe.getName(), recipeDto.getName());
+//		
+//		System.out.println(">>>>>>>>>>" + recipe.toString());
+//		System.out.println(">>>>>>>>>>" + recipeDto.toString());
+	
 	}
 	
-	private Long getIngredientIdValue() {
-		List<Ingredient> ingredients = ingredientRepository.findAll();
+	private Long getRecipeIdValue() {
+		List<Recipe> recipes = recipeRepository.findAll();
 		
 		// return first id
-		return ingredients.get(0).getId();
+		return recipes.get(0).getId();
 	}
 }
