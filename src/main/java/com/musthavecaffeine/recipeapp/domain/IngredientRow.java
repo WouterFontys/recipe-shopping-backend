@@ -1,19 +1,23 @@
 package com.musthavecaffeine.recipeapp.domain;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Version;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@Data
+@ToString(exclude = {"recipe", "ingredient"})
+@EqualsAndHashCode(exclude = {"recipe", "ingredient"})
 @Entity
 public class IngredientRow {
 
@@ -28,66 +32,44 @@ public class IngredientRow {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@ApiModelProperty(notes = "The database generated ingredient ID")
-	private Integer id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	
 	@Version
-	@ApiModelProperty(notes = "The auto-generated version of the ingredient")
 	private Integer version;
 	
-	@ApiModelProperty(notes = "The ingredient", required = true)
-	@OneToOne
-	private Ingredient ingredient;
-	
-	@ApiModelProperty(notes = "The ingredient amount", required = true)
+//	@ApiModelProperty(notes = "The ingredient amount", required = true)
 	private String amount;
 	
-	@ApiModelProperty(notes = "The ingredient amount unit", required = true)
-	@Enumerated(value = EnumType.STRING)
-	private IngredientUnitType unit;
+//	@ApiModelProperty(notes = "The ingredient amount unit", required = true)
+//	@Enumerated(value = EnumType.STRING)
+//	private IngredientUnitType unit;
 	
-	@JsonBackReference
+//	@ApiModelProperty(notes = "The ingredient", required = true)
+	@ManyToOne(fetch = FetchType.EAGER)
+	private Ingredient ingredient;
+	
 	@ManyToOne
 	private Recipe recipe;
-	
-	
+
+//	@JsonIgnore
 	public Ingredient getIngredient() {
 		return ingredient;
 	}
 
+	@JsonIgnore
 	public void setIngredient(Ingredient ingredient) {
 		this.ingredient = ingredient;
 	}
-
-	public String getAmount() {
-		return amount;
-	}
-
-	public void setAmount(String amount) {
-		this.amount = amount;
-	}
-
-	public IngredientUnitType getUnit() {
-		return unit;
-	}
-
-	public void setUnit(IngredientUnitType unit) {
-		this.unit = unit;
-	}
-
+	
+	@JsonIgnore
 	public Recipe getRecipe() {
 		return recipe;
 	}
 
+	@JsonIgnore
 	public void setRecipe(Recipe recipe) {
 		this.recipe = recipe;
 	}
 
-	@Override
-	public String toString( ) {
-		return String.format(
-                "IngredientRow[id=%d, version=%d, amount='%s', unit='%s']",
-                id, version, amount, unit);
-	}
 }
