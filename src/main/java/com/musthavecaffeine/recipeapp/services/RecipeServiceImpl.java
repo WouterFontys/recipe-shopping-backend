@@ -1,5 +1,6 @@
 package com.musthavecaffeine.recipeapp.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,19 +30,19 @@ public class RecipeServiceImpl implements RecipeService {
 		this.recipeRepository = recipeRepository;
 	}
 
-	@Override
-	public List<RecipeDTO> getAllRecipes() {
-		log.debug("getAllRecipes called");
-		return recipeRepository
-				.findAll()
-                .stream()
-                .map(recipe -> {
-                   RecipeDTO recipeDto = recipeMapper.recipeToRecipeDto(recipe);
-//                   recipeDTO.setRecipeUrl(getRecipeUrl(recipe.getId()));
-                   return recipeDto;
-                })
-                .collect(Collectors.toList());
-	}
+//	@Override
+//	public List<RecipeDTO> getAllRecipes() {
+//		log.debug("getAllRecipes called");
+//		return recipeRepository
+//				.findAll()
+//                .stream()
+//                .map(recipe -> {
+//                   RecipeDTO recipeDto = recipeMapper.recipeToRecipeDto(recipe);
+////                   recipeDTO.setRecipeUrl(getRecipeUrl(recipe.getId()));
+//                   return recipeDto;
+//                })
+//                .collect(Collectors.toList());
+//	}
 
 //	@Override
 //	public RecipeDTO getRecipeById(Long id) {
@@ -55,39 +56,76 @@ public class RecipeServiceImpl implements RecipeService {
 //				.map(recipeMapper::recipeToRecipeDto)
 //				.orElseThrow(ResourceNotFoundException::new);
 //	}
+
+	
+	@Override
+	public List<RecipeDTO> getAllRecipes() {
+		log.debug("getAllRecipes called");
+		
+		List<RecipeDTO> recipeDtoList = new ArrayList<RecipeDTO>();
+		List<RecipeDao> recipeDaoList = recipeDaoRepository.findAllPublicForUser();
+		
+		RecipeDTO recipeDto = null;
+		for (RecipeDao recipeDao : recipeDaoList) {
+			if (recipeDto == null || recipeDto.getId() != recipeDao.getId()) {
+				log.debug("recipe: " + recipeDao.toString());
+				recipeDto = new RecipeDTO();
+				recipeDtoList.add(recipeDto);
+				recipeDto.setId(recipeDao.getId());
+				recipeDto.setName(recipeDao.getName());
+				recipeDto.setDescription(recipeDao.getDescription());
+				recipeDto.setImageUrl(recipeDao.getImageUrl());
+				recipeDto.setPreparationTime(recipeDao.getPreparationTime());
+				
+				recipeDto.setNumberOfOneStarRatings(recipeDao.getNumberOfOneStarRatings());
+				recipeDto.setNumberOfTwoStarRatings(recipeDao.getNumberOfTwoStarRatings());
+				recipeDto.setNumberOfThreeStarRatings(recipeDao.getNumberOfThreeStarRatings());
+				recipeDto.setNumberOfFourStarRatings(recipeDao.getNumberOfFourStarRatings());
+				recipeDto.setNumberOfFiveStarRatings(recipeDao.getNumberOfFiveStarRatings());	
+			} 
+
+			IngredientDTO ingredientDto = new IngredientDTO();
+			ingredientDto.setId(recipeDao.getIngredientId());
+			ingredientDto.setName(recipeDao.getIngredientName());
+			ingredientDto.setAmount(recipeDao.getIngredientAmount());
+			
+			recipeDto.addIngredient(ingredientDto);
+		}
+
+		return recipeDtoList;
+	}
+	
 	
 	@Override
 	public RecipeDTO getRecipeById(Long id) {
 		log.debug("getRecipeById called with id: {}", id);
 		
 		List<RecipeDao> recipeDaoList = recipeDaoRepository.findById(id);
-		
+
 		RecipeDTO recipeDto = null;
-		if (!recipeDaoList.isEmpty()) {
-			recipeDto = new RecipeDTO();
-			RecipeDao recipeDao = recipeDaoList.get(0);
-			
-			recipeDto.setId(recipeDao.getId());
-			recipeDto.setName(recipeDao.getName());
-			recipeDto.setDescription(recipeDao.getDescription());
-			recipeDto.setImageUrl(recipeDao.getImageUrl());
-			recipeDto.setPreparationTime(recipeDao.getPreparationTime());
-			
-			recipeDto.setNumberOfOneStarRatings(recipeDao.getNumberOfOneStarRatings());
-			recipeDto.setNumberOfTwoStarRatings(recipeDao.getNumberOfTwoStarRatings());
-			recipeDto.setNumberOfThreeStarRatings(recipeDao.getNumberOfThreeStarRatings());
-			recipeDto.setNumberOfFourStarRatings(recipeDao.getNumberOfFourStarRatings());
-			recipeDto.setNumberOfFiveStarRatings(recipeDao.getNumberOfFiveStarRatings());	
-			
-			for (RecipeDao recipe : recipeDaoList) {
-				log.debug("recipe: " + recipe.toString());
-				IngredientDTO ingredientDto = new IngredientDTO();
-				ingredientDto.setId(recipe.getIngredientId());
-				ingredientDto.setName(recipe.getIngredientName());
-				ingredientDto.setAmount(recipe.getIngredientAmount());
+		for (RecipeDao recipeDao : recipeDaoList) {
+			if (recipeDto == null) {
+				log.debug("recipe: " + recipeDao.toString());
+				recipeDto = new RecipeDTO();
+				recipeDto.setId(recipeDao.getId());
+				recipeDto.setName(recipeDao.getName());
+				recipeDto.setDescription(recipeDao.getDescription());
+				recipeDto.setImageUrl(recipeDao.getImageUrl());
+				recipeDto.setPreparationTime(recipeDao.getPreparationTime());
 				
-				recipeDto.addIngredient(ingredientDto);
-			}
+				recipeDto.setNumberOfOneStarRatings(recipeDao.getNumberOfOneStarRatings());
+				recipeDto.setNumberOfTwoStarRatings(recipeDao.getNumberOfTwoStarRatings());
+				recipeDto.setNumberOfThreeStarRatings(recipeDao.getNumberOfThreeStarRatings());
+				recipeDto.setNumberOfFourStarRatings(recipeDao.getNumberOfFourStarRatings());
+				recipeDto.setNumberOfFiveStarRatings(recipeDao.getNumberOfFiveStarRatings());	
+			} 
+
+			IngredientDTO ingredientDto = new IngredientDTO();
+			ingredientDto.setId(recipeDao.getIngredientId());
+			ingredientDto.setName(recipeDao.getIngredientName());
+			ingredientDto.setAmount(recipeDao.getIngredientAmount());
+			
+			recipeDto.addIngredient(ingredientDto);
 		}
 		
 		return recipeDto;
