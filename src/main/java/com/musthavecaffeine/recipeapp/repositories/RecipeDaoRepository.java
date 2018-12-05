@@ -14,11 +14,15 @@ import javax.persistence.EntityResult;
 import javax.persistence.FieldResult;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.musthavecaffeine.recipeapp.domain.Recipe;
 import com.musthavecaffeine.recipeapp.domain.RecipeDao;
+import com.musthavecaffeine.recipeapp.services.RecipeServiceImpl;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Repository
 public class RecipeDaoRepository {
 
@@ -43,7 +47,7 @@ public class RecipeDaoRepository {
 				+ "ingredient.name as ingredient_name, "
 				+ "ingredient_row.amount as ingredient_amount "
 				+ "FROM recipe LEFT JOIN ingredient_row ON recipe.id = ingredient_row.recipe_id "
-				+ "JOIN ingredient ON ingredient_row.ingredient_id = ingredient.id "
+				+ "LEFT JOIN ingredient ON ingredient_row.ingredient_id = ingredient.id "
 				+ "WHERE recipe.private_recipe != 'true' "
 				//+ "OR recipe.user_id = :id "
 				+ "ORDER BY recipe.id";
@@ -69,25 +73,20 @@ public class RecipeDaoRepository {
 				+ "ingredient.name as ingredient_name, "
 				+ "ingredient_row.amount as ingredient_amount "
 				+ "FROM recipe LEFT JOIN ingredient_row ON recipe.id = ingredient_row.recipe_id "
-				+ "JOIN ingredient ON ingredient_row.ingredient_id = ingredient.id "
+				+ "LEFT JOIN ingredient ON ingredient_row.ingredient_id = ingredient.id "
 				+ "WHERE recipe.id = :id";		
-	
-	
-//		List<Object[]> results = entityManager.createNativeQuery(sql).setParameter("id", id).getResultList();
-//		
-//		results.stream().forEach((record) -> {
-//	        Long recipeId = ((BigInteger) record[0]).longValue();
-//	        String recipeName = (String) record[1];
-//	        Long ingredientId = ((BigInteger) record[10]).longValue();
-//	        String ingredientName = (String) record[11];
-//	        String ingredientAmount = (String) record[12];
-//	        
-//	        System.out.println("recipeId=[" + recipeId + "], recipeName=[" + recipeName +
-//	        		"], ingredientId=[" + ingredientId + "], ingredientName=[" + ingredientName +
-//	        		"], ingredientAmount=[" + ingredientAmount + "]");
-//		});		
 		
 		return entityManager.createNativeQuery(sql, RecipeDao.class).setParameter("id", id).getResultList();
 	}
 	
+	@Transactional
+	public void deleteById(Long id) {
+		log.info("deleteById: {}", id);
+		String sql = "DELETE FROM ingredient_row WHERE recipe_id = :id";
+		entityManager.createNativeQuery(sql).setParameter("id", id).executeUpdate();
+
+		sql = "DELETE FROM recipe WHERE id = :id";
+		entityManager.createNativeQuery(sql).setParameter("id", id).executeUpdate();
+	}
+
 }

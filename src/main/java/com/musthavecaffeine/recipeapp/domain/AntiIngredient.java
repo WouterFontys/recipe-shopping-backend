@@ -18,10 +18,6 @@ public class AntiIngredient {
 	@ApiModelProperty(notes = "The database generated anti-ingredient ID")
 	private Long id;
 	
-	@Version
-	@ApiModelProperty(notes = "The auto-generated version of the anti-ingredient")
-	private Integer version;
-	
 //	private User user;
 //	private Ingredient ingredient;
 }
