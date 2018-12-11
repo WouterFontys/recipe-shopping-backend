@@ -1,11 +1,14 @@
 package com.musthavecaffeine.recipeapp.services;
 
+import java.util.List;
+
 import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDTO;
 import com.musthavecaffeine.recipeapp.api.v1.model.IngredientListDTO;
 
 public interface IngredientService {
 
-	IngredientListDTO getAllIngredients();
+//	IngredientListDTO getAllIngredients();
+	List<IngredientDTO> getAllIngredients();
 	
 	IngredientDTO getIngredientById(Long id);
 	

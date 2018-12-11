@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -108,11 +109,11 @@ public class IngredientServiceTest {
 		given(ingredientRepository.findAll()).willReturn(ingredients);
 		
 		// when
-		IngredientListDTO ingredientListDtos = ingredientService.getAllIngredients();
+		ArrayList<IngredientDTO> ingredientListDtos = new ArrayList<IngredientDTO>(ingredientService.getAllIngredients());
 		
 		// then
 		then(ingredientRepository).should(times(1)).findAll();
-		assertThat(ingredientListDtos.getIngredients().size(), is(equalTo(2)));
+		assertThat(ingredientListDtos.size(), is(equalTo(2)));
 	}
 	
 	 @Test

@@ -1,6 +1,7 @@
 package com.musthavecaffeine.recipeapp.controllers.v1;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Api(tags = {"RecipeController"})
+@CrossOrigin
 @RestController
 @RequestMapping(RecipeController.BASE_URL)
 public class RecipeController {
@@ -54,11 +57,18 @@ public class RecipeController {
 //			@ApiResponse(code = 403, message = "You are not authorized to view the resource "),
 //			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
 //	})
+//	@GetMapping
+//	@ResponseStatus(HttpStatus.OK)
+//    public RecipeListDTO list(Model model){
+//        return new RecipeListDTO(recipeService.getAllRecipes());
+//	}
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-    public RecipeListDTO list(Model model){
-        return new RecipeListDTO(recipeService.getAllRecipes());
+    public ArrayList<RecipeDTO> list(Model model){
+        return new ArrayList<RecipeDTO>(recipeService.getAllRecipes());
 	}
+	
+	
 	
     @ApiOperation(value = "Find a recipe by ID",response = Recipe.class)
     @GetMapping("/{id}")

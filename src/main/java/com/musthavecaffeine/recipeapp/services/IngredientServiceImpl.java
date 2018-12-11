@@ -27,7 +27,7 @@ public class IngredientServiceImpl implements IngredientService {
 	}
 
 	@Override
-	public IngredientListDTO getAllIngredients() {
+	public List<IngredientDTO> getAllIngredients() {
 		log.debug("getAllIngredients called");
 		List<IngredientDTO> ingredientDtos = ingredientRepository
 				.findAll()
@@ -39,7 +39,7 @@ public class IngredientServiceImpl implements IngredientService {
                 })
                 .collect(Collectors.toList());
 
-		return new IngredientListDTO(ingredientDtos);
+		return ingredientDtos;
 	}
 
 	@Override

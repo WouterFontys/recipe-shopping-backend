@@ -42,8 +42,8 @@ public class RecipeServiceImplIntegrationTest {
 	@Autowired
 	RecipeRepository recipeRepository;
 
-	@Autowired
-	RecipeDaoRepository recipeDaoRepository;
+//	@Autowired
+//	RecipeDaoRepository recipeDaoRepository;
 
 	RecipeService recipeService;
 
@@ -57,7 +57,7 @@ public class RecipeServiceImplIntegrationTest {
 
 	@Test
 	public void getIngredientByName() {
-		long id = getRecipeIdValue();
+//		long id = getRecipeIdValue();
 
 //		Recipe recipe = recipeRepository.getOne(id);
 //		assertNotNull(recipe);

@@ -27,7 +27,7 @@ public class Recipe {
 	private String imageUrl;
 	private Long preparationTime;
 
-	private Boolean privateRecipe = false;
+	private Boolean isPrivate = false;
 
 	private Long numberOfOneStarRatings = 0L;
 	private Long numberOfTwoStarRatings = 0L;

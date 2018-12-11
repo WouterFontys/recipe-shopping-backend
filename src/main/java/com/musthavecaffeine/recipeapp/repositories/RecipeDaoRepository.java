@@ -37,7 +37,7 @@ public class RecipeDaoRepository {
 				+ "recipe.description, "
 				+ "recipe.image_url, "
 				+ "recipe.preparation_time, "
-				+ "recipe.private_recipe, "
+				+ "recipe.is_private, "
 				+ "recipe.number_of_one_star_ratings, "
 				+ "recipe.number_of_two_star_ratings, "
 				+ "recipe.number_of_three_star_ratings, "
@@ -48,7 +48,7 @@ public class RecipeDaoRepository {
 				+ "ingredient_row.amount as ingredient_amount "
 				+ "FROM recipe LEFT JOIN ingredient_row ON recipe.id = ingredient_row.recipe_id "
 				+ "LEFT JOIN ingredient ON ingredient_row.ingredient_id = ingredient.id "
-				+ "WHERE recipe.private_recipe != 'true' "
+				+ "WHERE recipe.is_private != 'true' "
 				//+ "OR recipe.user_id = :id "
 				+ "ORDER BY recipe.id";
 		
@@ -63,7 +63,7 @@ public class RecipeDaoRepository {
 				+ "recipe.description, "
 				+ "recipe.image_url, "
 				+ "recipe.preparation_time, "
-				+ "recipe.private_recipe, "
+				+ "recipe.is_private, "
 				+ "recipe.number_of_one_star_ratings, "
 				+ "recipe.number_of_two_star_ratings, "
 				+ "recipe.number_of_three_star_ratings, "
