@@ -19,10 +19,6 @@ public class Favorite {
 	@ApiModelProperty(notes = "The database generated favorite ID")
 	private Long id;
 	
-	@Version
-	@ApiModelProperty(notes = "The auto-generated version of the favorite")
-	private Integer version;
-	
 //	@ManyToOne
 //	private Recipe recipe;
 	

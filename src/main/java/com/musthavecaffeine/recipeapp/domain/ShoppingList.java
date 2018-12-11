@@ -17,9 +17,6 @@ public class ShoppingList {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Version
-	private Integer version;
-	
 //	@ManyToOne
 //	private User user;
 	

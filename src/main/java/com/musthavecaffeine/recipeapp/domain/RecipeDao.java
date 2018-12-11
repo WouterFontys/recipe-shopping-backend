@@ -14,7 +14,7 @@ public class RecipeDao {
 	private String description;
 	private String imageUrl;
 	private Long preparationTime;
-	private Boolean privateRecipe;
+	private Boolean isPrivate;
 	
 	private Long numberOfOneStarRatings = 0L;
 	private Long numberOfTwoStarRatings = 0L;

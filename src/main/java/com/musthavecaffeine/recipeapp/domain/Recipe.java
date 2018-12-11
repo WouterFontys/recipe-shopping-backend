@@ -17,27 +17,28 @@ import lombok.Data;
 @Data
 @Entity
 public class Recipe {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	@Version
-	private Integer version;
-	
+
 	private String name;
 	private String description;
 	private String imageUrl;
 	private Long preparationTime;
 
-	private Boolean privateRecipe = false;
-	
+	private Boolean isPrivate = false;
+
 	private Long numberOfOneStarRatings = 0L;
 	private Long numberOfTwoStarRatings = 0L;
 	private Long numberOfThreeStarRatings = 0L;
 	private Long numberOfFourStarRatings = 0L;
 	private Long numberOfFiveStarRatings = 0L;
-	
+
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "recipe")
 	private Set<IngredientRow> ingredientsRows = new HashSet<IngredientRow>();
+
+	public void addIngredientRow(IngredientRow ingredientRow) {
+		ingredientsRows.add(ingredientRow);
+	}
 }

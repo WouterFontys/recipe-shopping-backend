@@ -1,8 +1,10 @@
 package com.musthavecaffeine.recipeapp.controllers.v1;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDTO;
 import com.musthavecaffeine.recipeapp.api.v1.model.IngredientListDTO;
+import com.musthavecaffeine.recipeapp.api.v1.model.RecipeDTO;
 import com.musthavecaffeine.recipeapp.domain.Ingredient;
 import com.musthavecaffeine.recipeapp.services.IngredientService;
 
@@ -43,10 +46,16 @@ public class IngredientController {
 //			@ApiResponse(code = 403, message = "You are not authorized to view the resource "),
 //			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
 //	})
+//	@GetMapping
+//	@ResponseStatus(HttpStatus.OK)
+//    public IngredientListDTO getListOfIngredients(){
+//        return ingredientService.getAllIngredients();
+//	}
+
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-    public IngredientListDTO getListOfIngredients(){
-        return ingredientService.getAllIngredients();
+    public ArrayList<IngredientDTO> list(Model model){
+        return new ArrayList<IngredientDTO>(ingredientService.getAllIngredients());
 	}
 	
     @ApiOperation(value = "Find an ingredient by ID",response = Ingredient.class)

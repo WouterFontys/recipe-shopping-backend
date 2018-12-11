@@ -35,9 +35,6 @@ public class IngredientRow {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Version
-	private Integer version;
-	
 //	@ApiModelProperty(notes = "The ingredient amount", required = true)
 	private String amount;
 	

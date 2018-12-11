@@ -35,7 +35,7 @@ public class RecipeDTO {
 	private Long preparationTime;
 	
 	@ApiModelProperty(notes = "The recipe is only visible to the recipe author", required = true)
-	private Boolean privateRecipe = false;
+	private Boolean isPrivate = false;
 	
 //	@JsonManagedReference
 //	@JsonIgnore
