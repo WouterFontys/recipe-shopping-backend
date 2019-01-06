@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.musthavecaffeine.recipeapp.api.v1.mapper.IngredientMapper;
 import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDto;
@@ -12,6 +13,7 @@ import com.musthavecaffeine.recipeapp.domain.Ingredient;
 import com.musthavecaffeine.recipeapp.repositories.IngredientRepository;
 
 @Service
+@Transactional
 public class IngredientServiceImpl implements IngredientService {
 
 	private final IngredientRepository ingredientRepository;

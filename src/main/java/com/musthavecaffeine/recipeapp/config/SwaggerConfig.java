@@ -6,6 +6,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -25,7 +26,9 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 				//.groupName("RecipeController")
 				.select()
 				.apis(RequestHandlerSelectors.basePackage("com.musthavecaffeine.recipeapp.controllers.v1"))
-				.paths(regex("/(ingredient|recipe|shoppinglist|user).*"))
+//				.paths(regex("/(ingredient|recipe|shoppinglist|user).*"))
+				.paths(PathSelectors.any())
+
 				.build()
 				.apiInfo(metaData())
 				.tags(

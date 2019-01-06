@@ -24,7 +24,7 @@ VALUES ('Nasi Goreng',
 	'https://springframework.guru/wp-content/uploads/2015/04/spring_framework_guru_shirt-rf412049699c14ba5b68bb1c09182bfa2_8nax2_512.jpg',
 	20,
 	1,
-	1);
+	0);
 
 INSERT INTO recipe (name, description, image_url, preparation_time, user_id, is_private)
 VALUES ('Kaiserschmarrn met abrikozencompote',
@@ -32,7 +32,7 @@ VALUES ('Kaiserschmarrn met abrikozencompote',
 	'https://www.francescakookt.nl/wp-content/uploads/kaiserschmarrn-met-abrikozencompote-1.jpg',
 	10,
 	1,
-	1);
+	0);
 
 INSERT INTO recipe_ingredient (recipe_id, ingredient_id, amount) VALUES (1, 1, 100);
 INSERT INTO recipe_ingredient (recipe_id, ingredient_id, amount) VALUES (1, 2, 10);
