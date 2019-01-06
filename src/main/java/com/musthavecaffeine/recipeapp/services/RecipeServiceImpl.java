@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.musthavecaffeine.recipeapp.api.v1.mapper.RecipeMapper;
 import com.musthavecaffeine.recipeapp.api.v1.model.RecipeDto;
@@ -15,6 +16,7 @@ import com.musthavecaffeine.recipeapp.services.exceptions.ResourceNotFoundExcept
 import com.musthavecaffeine.recipeapp.services.exceptions.UnauthorizedException;
 
 @Service
+@Transactional
 public class RecipeServiceImpl implements RecipeService {
 
 	private final RecipeRepository recipeRepository;
@@ -52,7 +54,7 @@ public class RecipeServiceImpl implements RecipeService {
 				.findById(id)
 				.orElseThrow(ResourceNotFoundException::new);
 
-		if (recipe.getUser().getId() != userId) {
+		if (recipe.getIsPrivate() && recipe.getUser().getId() != userId) {
 			throw new UnauthorizedException();
 		}
 		

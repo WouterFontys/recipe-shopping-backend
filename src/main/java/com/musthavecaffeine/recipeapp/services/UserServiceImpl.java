@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.musthavecaffeine.recipeapp.api.v1.mapper.UserMapper;
 import com.musthavecaffeine.recipeapp.api.v1.model.UserDto;
@@ -12,6 +13,7 @@ import com.musthavecaffeine.recipeapp.repositories.UserRepository;
 import com.musthavecaffeine.recipeapp.services.exceptions.ResourceNotFoundException;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
 
 	private final UserMapper userMapper;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.musthavecaffeine.recipeapp.api.v1.mapper.ShoppingListMapper;
 import com.musthavecaffeine.recipeapp.api.v1.model.ShoppingListDto;
@@ -15,6 +16,7 @@ import com.musthavecaffeine.recipeapp.services.exceptions.ResourceNotFoundExcept
 import com.musthavecaffeine.recipeapp.services.exceptions.UnauthorizedException;
 
 @Service
+@Transactional
 public class ShoppingListServiceImpl implements ShoppingListService{
 
 	private final ShoppingListRepository shoppingListRepository;
