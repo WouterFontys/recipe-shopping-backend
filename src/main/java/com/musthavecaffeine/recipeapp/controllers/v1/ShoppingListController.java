@@ -1,6 +1,6 @@
 package com.musthavecaffeine.recipeapp.controllers.v1;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,69 +13,60 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.musthavecaffeine.recipeapp.api.v1.model.ShoppingListDTO;
-import com.musthavecaffeine.recipeapp.api.v1.model.ShoppingListListDTO;
-import com.musthavecaffeine.recipeapp.domain.ShoppingList;
+import com.musthavecaffeine.recipeapp.api.v1.model.ShoppingListDto;
 import com.musthavecaffeine.recipeapp.services.ShoppingListService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Api(tags = {"ShoppingListController"})
 @RestController
 @RequestMapping(ShoppingListController.BASE_URL)
 public class ShoppingListController {
 
 	public static final String BASE_URL = "/api/v1/shoppinglist";
+
+	// temporary workaround till we have Spring Security in place
+	public static final Long userId = 0L;
 	
 	private final ShoppingListService shoppingListService;
-
+	
 	public ShoppingListController(ShoppingListService shoppingListService) {
 		this.shoppingListService = shoppingListService;
 	}
 	
-	@ApiOperation(value = "Get a list of available shoppinglists", response = List.class)
+	@ApiOperation(value = "Get a list of available shoppinglists", response = ArrayList.class)
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-    public ShoppingListListDTO getListOfShoppingLists(){
-        return new ShoppingListListDTO(shoppingListService.getAllShoppingLists());
+    public ArrayList<ShoppingListDto> getListOfShoppingLists(){
+        return new ArrayList<ShoppingListDto>(shoppingListService.getAllShoppingLists(userId));
 	}
 	
-    @ApiOperation(value = "Find an shoppinglist by ID",response = ShoppingList.class)
+    @ApiOperation(value = "Find a shoppinglist by ID", response = ShoppingListDto.class)
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ShoppingListDTO getShoppingListById(@PathVariable Long id){
-    	return shoppingListService.getShoppingListById(id);
+    public ShoppingListDto getShoppingListById(@PathVariable Long id){
+    	return shoppingListService.getShoppingListById(id, userId);
     }
 
-    @ApiOperation(value = "Add a new shoppinglist")
+    @ApiOperation(value = "Add a new shoppinglist", response = ShoppingListDto.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ShoppingListDTO createNewShoppingList(@RequestBody ShoppingListDTO shoppingListDto){
-        return shoppingListService.createNewShoppingList(shoppingListDto);
-        
-//        URI location = ServletUriComponentsBuilder
-//				.fromCurrentRequest().path("/{id}")
-//				.buildAndExpand(result.getId()).toUri();
-//
-//		logger.info(result.toString());
-//		
-//		return ResponseEntity.created(location).build();
+    public ShoppingListDto createNewShoppingList(@RequestBody ShoppingListDto shoppingListDto){
+        return shoppingListService.createNewShoppingList(shoppingListDto, userId);
     }
 
-    @ApiOperation(value = "Update an shoppinglist")
+    @ApiOperation(value = "Update a shoppinglist", response = ShoppingListDto.class)
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ShoppingListDTO updateShoppingList(@PathVariable Long id, @RequestBody ShoppingListDTO shoppingListDto){
-        return shoppingListService.saveShoppingListByDto(id, shoppingListDto);
+    public ShoppingListDto updateShoppingList(@PathVariable Long id, @RequestBody ShoppingListDto shoppingListDto){
+        return shoppingListService.updateShoppingList(shoppingListDto, userId);
     }
 
-    @ApiOperation(value = "Delete an shoppinglist")
+    @ApiOperation(value = "Delete a shoppinglist")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id){
-        shoppingListService.deleteShoppingListById(id);
+        shoppingListService.deleteShoppingListById(id, userId);
     }
 }

@@ -1,13 +1,8 @@
 package com.musthavecaffeine.recipeapp.controllers.v1;
 
-import java.net.URI;
-import java.util.List;
+import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,24 +11,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.musthavecaffeine.recipeapp.api.v1.model.UserDTO;
-import com.musthavecaffeine.recipeapp.api.v1.model.UserListDTO;
-import com.musthavecaffeine.recipeapp.domain.User;
+import com.musthavecaffeine.recipeapp.api.v1.model.UserDto;
 import com.musthavecaffeine.recipeapp.services.UserService;
-import com.musthavecaffeine.recipeapp.services.UserServiceImpl;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Api(tags = {"UserController"})
 @RestController
 @RequestMapping(UserController.BASE_URL)
@@ -47,7 +33,7 @@ public class UserController {
 		this.userService = userService;
 	}
 	
-	@ApiOperation(value = "Get a list of available users", response = List.class)
+	@ApiOperation(value = "Get a list of available users", response = ArrayList.class)
 //	@ApiResponses(value = {
 //			@ApiResponse(code = 200, message = "Successfully retrieved list"),
 //			@ApiResponse(code = 401, message = "Your are not authenticated"),
@@ -56,42 +42,41 @@ public class UserController {
 //	})
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-    public UserListDTO list(Model model){
-        return new UserListDTO(userService.getAllUsers());
+    public ArrayList<UserDto> list(Model model){
+		// TODO: protect this so that only admins can get a full list of all users
+        return new ArrayList<UserDto>(userService.getAllUsers());
 	}
 	
-    @ApiOperation(value = "Find a user by ID",response = User.class)
+    @ApiOperation(value = "Find a user by ID", response = UserDto.class)
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UserDTO getUserById(@PathVariable Long id){
+    public UserDto getUserById(@PathVariable Long id){
+    	// TODO: protect this so that the user can only get him/herself
     	return userService.getUserById(id);
     }
 
-    @ApiOperation(value = "Add a new user")
+    @ApiOperation(value = "Add a new user", response = UserDto.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDTO createNewUser(@RequestBody UserDTO userDto){
+    public UserDto createNewUser(@RequestBody UserDto userDto){
+    	// this API endpoint needs to be publicly available without the need of
+    	// being logged in, otherwise a new user won't be able to register
         return userService.createNewUser(userDto);
-        
-//        URI location = ServletUriComponentsBuilder
-//				.fromCurrentRequest().path("/{id}")
-//				.buildAndExpand(result.getId()).toUri();
-//
-//		log.info(result.toString());
-//		
-//		return ResponseEntity.created(location).build();
     }
 
-    @ApiOperation(value = "Update a user by ID")
+    @ApiOperation(value = "Update a user by ID", response = UserDto.class)
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UserDTO updateUser(@PathVariable Long id, @RequestBody UserDTO userDto){
-    	return userService.saveUserByDto(id, userDto);
+    public UserDto updateUser(@PathVariable Long id, @RequestBody UserDto userDto){
+
+    	// TODO: protect this so that the user can only change him/herself
+    	return userService.updateUser(id, userDto);
     }
 
-    @ApiOperation(value = "Delete a user by ID")
+    @ApiOperation(value = "Delete a user by ID", response = UserDto.class)
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id){
+    	//TODO: protect this so that the user can only delete him/herself
         userService.deleteUserById(id);
     }
 }

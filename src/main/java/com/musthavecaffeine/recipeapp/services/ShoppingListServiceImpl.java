@@ -1,81 +1,109 @@
 package com.musthavecaffeine.recipeapp.services;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.musthavecaffeine.recipeapp.api.v1.mapper.ShoppingListMapper;
-import com.musthavecaffeine.recipeapp.api.v1.model.ShoppingListDTO;
+import com.musthavecaffeine.recipeapp.api.v1.model.ShoppingListDto;
 import com.musthavecaffeine.recipeapp.domain.ShoppingList;
+import com.musthavecaffeine.recipeapp.domain.User;
 import com.musthavecaffeine.recipeapp.repositories.ShoppingListRepository;
+import com.musthavecaffeine.recipeapp.repositories.UserRepository;
+import com.musthavecaffeine.recipeapp.services.exceptions.ResourceNotFoundException;
+import com.musthavecaffeine.recipeapp.services.exceptions.UnauthorizedException;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Service
-public class ShoppingListServiceImpl implements ShoppingListService {
+public class ShoppingListServiceImpl implements ShoppingListService{
 
-	private final ShoppingListMapper shoppingListMapper;
 	private final ShoppingListRepository shoppingListRepository;
 	
+	private final UserRepository userRepository;
 	
-	public ShoppingListServiceImpl(ShoppingListMapper shoppingListMapper, ShoppingListRepository shoppingListRepository) {
-		this.shoppingListMapper = shoppingListMapper;
+	private final ShoppingListMapper shoppingListMapper;
+	
+	
+	
+	public ShoppingListServiceImpl(ShoppingListRepository shoppingListRepository, UserRepository userRepository,
+			ShoppingListMapper shoppingListMapper) {
 		this.shoppingListRepository = shoppingListRepository;
+		this.userRepository = userRepository;
+		this.shoppingListMapper = shoppingListMapper;
 	}
 
 	@Override
-	public List<ShoppingListDTO> getAllShoppingLists() {
-		log.debug("getAllShoppingLists called");
-		return shoppingListRepository
-				.findAll()
-                .stream()
-                .map(shoppingList -> {
-                   ShoppingListDTO shoppingListDTO = shoppingListMapper.shoppingListToShoppingListDto(shoppingList);
-//                   shoppingListDTO.setShoppingListUrl(getShoppingListUrl(shoppingList.getId()));
-                   return shoppingListDTO;
-                })
-                .collect(Collectors.toList());
+	public List<ShoppingListDto> getAllShoppingLists(Long userId) {
+		ArrayList<ShoppingListDto> shoppingListDtos = new ArrayList<ShoppingListDto>();
+		
+		List<ShoppingList> shoppingLists = shoppingListRepository.findAll();
+		for (ShoppingList shoppingList : shoppingLists) {
+			// only expose shoppingLists that the user is allowed to see
+			// alternatively we could have created a proper query to only
+			// get those shoppingLists from the db
+			if (shoppingList.getUser().getId() == userId) {
+				shoppingListDtos.add(shoppingListMapper.shoppingListToShoppingListDto(shoppingList));
+			}
+		}
+		
+		return shoppingListDtos;
+
 	}
 
 	@Override
-	public ShoppingListDTO getShoppingListById(Long id) {
-		log.debug("getShoppingListById called with id: {}", id);
-		return shoppingListRepository.findById(id)
-				.map(shoppingListMapper::shoppingListToShoppingListDto)
-//				.map(shoppingListDTO -> {
-//					// set API URL
-//					shoppingListDTO.setShoppingListUrl(getShoppingListUrl(id));
-//					return shoppingListDTO;
-//				})
+	public ShoppingListDto getShoppingListById(Long id, Long userId) {
+		ShoppingList shoppingList = shoppingListRepository
+				.findById(id)
 				.orElseThrow(ResourceNotFoundException::new);
+		
+		if (shoppingList.getUser().getId() != userId) {
+			throw new UnauthorizedException();
+		}
+		
+		return shoppingListMapper.shoppingListToShoppingListDto(shoppingList);
 	}
 
 	@Override
-	public ShoppingListDTO createNewShoppingList(ShoppingListDTO shoppingListDto) {
-		log.debug("createNewShoppingList called: {}", shoppingListDto.toString());
-		return saveAndReturnDto(shoppingListMapper.shoppingListDtoToShoppingList(shoppingListDto));
+	public ShoppingListDto createNewShoppingList(ShoppingListDto shoppingListDto, Long userId) {
+		User user = userRepository
+				.findById(userId)
+				.orElseThrow(UnauthorizedException::new);
+		
+		ShoppingList shoppingList = shoppingListMapper.shoppingListDtoToShoppingList(user, shoppingListDto);
+		return shoppingListMapper.shoppingListToShoppingListDto(shoppingListRepository.save(shoppingList));
 	}
-	
+
 	@Override
-	public ShoppingListDTO saveShoppingListByDto(Long id, ShoppingListDTO shoppingListDto) {
-		log.debug("saveShoppingListByDto called: {}", shoppingListDto.toString());
-		ShoppingList shoppingList = shoppingListMapper.shoppingListDtoToShoppingList(shoppingListDto);
-		shoppingList.setId(id);
-		return saveAndReturnDto(shoppingList);
-	}	
-	
-	@Override
-	public void deleteShoppingListById(Long id) {
-		log.debug("deleteShoppingListById called with id: {}", id);
-		shoppingListRepository.deleteById(id);
+	public ShoppingListDto updateShoppingList(ShoppingListDto shoppingListDto, Long userId) {
+
+		if (shoppingListDto.getUserId() != userId) {
+			throw new UnauthorizedException();
+		}
+		
+		ShoppingList shoppingList = shoppingListRepository
+				.findById(shoppingListDto.getId())
+				.orElseThrow(ResourceNotFoundException::new);
+		
+		shoppingListMapper.shoppingListDtoToShoppingList(shoppingList.getUser(), shoppingListDto, shoppingList);
+		
+		shoppingListDto = shoppingListMapper.shoppingListToShoppingListDto(shoppingListRepository.save(shoppingList));
+
+		return shoppingListDto;
 	}
-	
-	private ShoppingListDTO saveAndReturnDto(ShoppingList shoppingList) {
-		ShoppingList savedShoppingList = shoppingListRepository.save(shoppingList);
-		ShoppingListDTO returnDto = shoppingListMapper.shoppingListToShoppingListDto(savedShoppingList);
-		return returnDto;
+
+	@Override
+	public void deleteShoppingListById(Long id, Long userId) {
+		
+		ShoppingList shoppingList = shoppingListRepository
+				.findById(id)
+				.orElseThrow(ResourceNotFoundException::new);
+		
+		if (shoppingList.getUser().getId() == userId) {
+			shoppingListRepository.deleteById(id);
+		} else {
+			throw new UnauthorizedException();
+		}
+		
 	}
 
 }

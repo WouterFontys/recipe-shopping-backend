@@ -2,18 +2,18 @@ package com.musthavecaffeine.recipeapp.services;
 
 import java.util.List;
 
-import com.musthavecaffeine.recipeapp.api.v1.model.UserDTO;
+import com.musthavecaffeine.recipeapp.api.v1.model.UserDto;
 
 
 public interface UserService {
 
-	List<UserDTO> getAllUsers();
+	List<UserDto> getAllUsers();
 	
-	UserDTO getUserById(Long id);
+	UserDto getUserById(Long id);
 	
-	UserDTO createNewUser(UserDTO userDto);
+	UserDto createNewUser(UserDto userDto);
 	
-	UserDTO saveUserByDto(Long id, UserDTO userDto);
+	UserDto updateUser(Long userId, UserDto userDto);
 	
 	void deleteUserById(Long id);
 }

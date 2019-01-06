@@ -24,12 +24,15 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 		return new Docket(DocumentationType.SWAGGER_2)
 				//.groupName("RecipeController")
 				.select()
-				.apis(RequestHandlerSelectors.basePackage("com.musthavecaffeine.recipeapp.controllers"))
-				.paths(regex("/(recipe|ingredient).*"))
+				.apis(RequestHandlerSelectors.basePackage("com.musthavecaffeine.recipeapp.controllers.v1"))
+				.paths(regex("/(ingredient|recipe|shoppinglist|user).*"))
 				.build()
 				.apiInfo(metaData())
-				.tags(new Tag("RecipeController", "Operations pertaining to recipes"),
-						new Tag("IngredientController", "Operations pertaining to ingredients"));
+				.tags(
+						new Tag("IngredientController", "Operations pertaining to ingredients"),
+						new Tag("RecipeController", "Operations pertaining to recipes"),
+						new Tag("ShoppingListController", "Operations pertaining to shoppinglists"),
+						new Tag("UserController", "Operations pertaining to users"));
 	}
 
 //	@Bean
@@ -51,7 +54,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 				.version("1.0.0")
 				.license("Apache License Version 2.0")
 				.licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
-				.contact(new Contact("Must Have Caffeine", "http://github.com/...", "foo@bar.com"))
+				.contact(new Contact("Must Have Caffeine", "https://github.com/WouterFontys/recipe-shopping-backend", "foo@bar.com"))
 				.build();
 	}
 

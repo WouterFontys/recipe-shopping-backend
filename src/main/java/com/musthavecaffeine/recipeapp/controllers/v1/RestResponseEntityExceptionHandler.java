@@ -1,6 +1,5 @@
 package com.musthavecaffeine.recipeapp.controllers.v1;
 
-import com.musthavecaffeine.recipeapp.services.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +8,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.musthavecaffeine.recipeapp.services.exceptions.ResourceNotFoundException;
+import com.musthavecaffeine.recipeapp.services.exceptions.UnauthorizedException;
+
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -16,5 +18,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	public ResponseEntity<Object> handleNotFoundException(Exception exception, WebRequest request) {
 
 		return new ResponseEntity<Object>("Resource Not Found", new HttpHeaders(), HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler({ UnauthorizedException.class })
+	public ResponseEntity<Object> handleUnauthorizedException(Exception exception, WebRequest request) {
+
+		return new ResponseEntity<Object>("Unauthorized", new HttpHeaders(), HttpStatus.UNAUTHORIZED);
 	}
 }
