@@ -58,13 +58,13 @@
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger2</artifactId>
 			<version>${io.springfox.swagger.version}</version>
-			<scope>compile</scope>
+			<!-- scope>compile</scope -->
 		</dependency>
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>${io.springfox.swagger.version}</version>
-			<scope>compile</scope>
+			<!-- scope>compile</scope -->
 		</dependency>
 		<dependency>
 			<groupId>org.mapstruct</groupId>
