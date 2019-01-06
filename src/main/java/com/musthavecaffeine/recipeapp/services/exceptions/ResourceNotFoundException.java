@@ -1,5 +1,6 @@
-package com.musthavecaffeine.recipeapp.services;
+package com.musthavecaffeine.recipeapp.services.exceptions;
 
+@SuppressWarnings("serial")
 public class ResourceNotFoundException extends RuntimeException {
 
 	public ResourceNotFoundException() {

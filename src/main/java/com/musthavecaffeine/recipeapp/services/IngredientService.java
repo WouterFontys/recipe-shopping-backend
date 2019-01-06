@@ -2,21 +2,20 @@ package com.musthavecaffeine.recipeapp.services;
 
 import java.util.List;
 
-import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDTO;
-import com.musthavecaffeine.recipeapp.api.v1.model.IngredientListDTO;
+import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDto;
 
 public interface IngredientService {
 
-//	IngredientListDTO getAllIngredients();
-	List<IngredientDTO> getAllIngredients();
+	List<IngredientDto> getAllIngredients();
 	
-	IngredientDTO getIngredientById(Long id);
+	IngredientDto getIngredientById(Long id);
 	
-	IngredientDTO getIngredientByName(String name);
+	IngredientDto getIngredientByName(String name);
 	
-	IngredientDTO createNewIngredient(IngredientDTO ingredientDto);
+	IngredientDto createNewIngredient(IngredientDto ingredientDto);
 	
-	IngredientDTO saveIngredientByDto(Long id, IngredientDTO ingredientDto);
+	IngredientDto updateIngredient(IngredientDto ingredientDto);
 	
 	void deleteIngredientById(Long id);
+	
 }

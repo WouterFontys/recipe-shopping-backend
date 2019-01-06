@@ -1,90 +1,112 @@
 package com.musthavecaffeine.recipeapp.services;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.musthavecaffeine.recipeapp.api.v1.mapper.IngredientMapper;
-import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDTO;
-import com.musthavecaffeine.recipeapp.api.v1.model.IngredientListDTO;
+import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDto;
 import com.musthavecaffeine.recipeapp.domain.Ingredient;
 import com.musthavecaffeine.recipeapp.repositories.IngredientRepository;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Service
 public class IngredientServiceImpl implements IngredientService {
 
-	private final IngredientMapper ingredientMapper;
 	private final IngredientRepository ingredientRepository;
 	
+	private final IngredientMapper ingredientMapper;
 	
-	public IngredientServiceImpl(IngredientMapper ingredientMapper, IngredientRepository ingredientRepository) {
-		this.ingredientMapper = ingredientMapper;
+	public IngredientServiceImpl(IngredientRepository ingredientRepository, IngredientMapper ingredientMapper) {
 		this.ingredientRepository = ingredientRepository;
+		this.ingredientMapper = ingredientMapper;
 	}
 
 	@Override
-	public List<IngredientDTO> getAllIngredients() {
-		log.debug("getAllIngredients called");
-		List<IngredientDTO> ingredientDtos = ingredientRepository
-				.findAll()
-                .stream()
-                .map(ingredient -> {
-                   IngredientDTO ingredientDTO = ingredientMapper.ingredientToIngredientDto(ingredient);
-//                   ingredientDTO.setIngredientUrl(getIngredientUrl(ingredient.getId()));
-                   return ingredientDTO;
-                })
-                .collect(Collectors.toList());
+	public List<IngredientDto> getAllIngredients() {
 
+		ArrayList<IngredientDto> ingredientDtos = new ArrayList<>();
+		
+		List<Ingredient> ingredients = ingredientRepository.findAll();
+		for (Ingredient ingredient : ingredients) {
+			ingredientDtos.add(ingredientMapper.ingredientToIngredientDto(ingredient));
+		}
+		
 		return ingredientDtos;
 	}
 
 	@Override
-	public IngredientDTO getIngredientById(Long id) {
-		log.debug("getIngredientById called with id: {}", id);
-		return ingredientRepository.findById(id)
-				.map(ingredientMapper::ingredientToIngredientDto)
-//				.map(ingredientDTO -> {
-//					// set API URL
-//					ingredientDTO.setIngredientUrl(getIngredientUrl(id));
-//					return ingredientDTO;
-//				})
-				.orElseThrow(ResourceNotFoundException::new);
+	public IngredientDto getIngredientById(Long id) {
+		
+		Optional<Ingredient> ingredient = ingredientRepository.findById(id);
+		IngredientDto ingredientDto = null;
+		if (ingredient.isPresent()) {
+			ingredientDto = ingredientMapper.ingredientToIngredientDto(ingredient.get());
+		}
+		
+		return ingredientDto;
 	}
 
 	@Override
-	public IngredientDTO getIngredientByName(String name) {
-		log.debug("getIngredientByName called with id: {}", name);
-		return ingredientMapper.ingredientToIngredientDto(ingredientRepository.findByName(name));
+	public IngredientDto getIngredientByName(String name) {
+		
+		Optional<Ingredient> ingredient = ingredientRepository.findByName(name);
+		IngredientDto ingredientDto = null;
+		if (ingredient.isPresent()) {
+			ingredientDto = ingredientMapper.ingredientToIngredientDto(ingredient.get());
+		}
+		
+		return ingredientDto;
+
 	}
-	
+
 	@Override
-	public IngredientDTO createNewIngredient(IngredientDTO ingredientDto) {
-		log.debug("createNewIngredient called: {}", ingredientDto.toString());
-		return saveAndReturnDto(ingredientMapper.ingredientDtoToIngredient(ingredientDto));
+	public IngredientDto createNewIngredient(IngredientDto ingredientDto) {
+
+		// we don't want to update an existing ingredient so we make sure the id is null
+		ingredientDto.setId(null);
+	
+		// check if an ingredient with the same name already exists
+		Optional<Ingredient> ingredient = ingredientRepository.findByName(ingredientDto.getName());
+		
+		if (!ingredient.isPresent()) {
+			// ingredient does not exist yet in the database
+			Ingredient i = ingredientMapper.ingredientDtoToIngredient(ingredientDto);
+			
+			// save the ingredient to the database and map it to a DTO now that we have the ingredient id
+			ingredientDto = ingredientMapper.ingredientToIngredientDto(ingredientRepository.save(i));
+		} else {
+			// ingredient already exists in the database, so we simple return the existing ingredient
+			ingredientDto = ingredientMapper.ingredientToIngredientDto(ingredient.get());
+		}
+
+		return ingredientDto;
 	}
-	
+
 	@Override
-	public IngredientDTO saveIngredientByDto(Long id, IngredientDTO ingredientDto) {
-		log.debug("saveIngredientByDto called: {}", ingredientDto.toString());
-		Ingredient ingredient = ingredientMapper.ingredientDtoToIngredient(ingredientDto);
-		ingredient.setId(id);
-		return saveAndReturnDto(ingredient);
-	}	
-	
+	public IngredientDto updateIngredient(IngredientDto ingredientDto) {
+
+		Long id = ingredientDto.getId();
+		if (id != null) {
+			Optional<Ingredient> ingredient = ingredientRepository.findById(ingredientDto.getId());
+			if (ingredient.isPresent()) {
+				Ingredient i = ingredient.get();
+				i.setName(ingredientDto.getName());
+				ingredientDto = ingredientMapper.ingredientToIngredientDto(ingredientRepository.save(i));
+			} else {
+				ingredientDto = null;
+			}
+		} else {
+			ingredientDto = null;
+		}
+		
+		return ingredientDto;
+	}
+
 	@Override
 	public void deleteIngredientById(Long id) {
-		log.debug("deleteIngredientById called with id: {}", id);
 		ingredientRepository.deleteById(id);
-	}
-	
-	private IngredientDTO saveAndReturnDto(Ingredient ingredient) {
-		Ingredient savedIngredient = ingredientRepository.save(ingredient);
-		IngredientDTO returnDto = ingredientMapper.ingredientToIngredientDto(savedIngredient);
-		return returnDto;
 	}
 
 }

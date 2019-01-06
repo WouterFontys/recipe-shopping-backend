@@ -2,207 +2,104 @@ package com.musthavecaffeine.recipeapp.services;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.musthavecaffeine.recipeapp.api.v1.mapper.IngredientMapper;
 import com.musthavecaffeine.recipeapp.api.v1.mapper.RecipeMapper;
-import com.musthavecaffeine.recipeapp.api.v1.model.IngredientDTO;
-import com.musthavecaffeine.recipeapp.api.v1.model.RecipeDTO;
-import com.musthavecaffeine.recipeapp.domain.Ingredient;
-import com.musthavecaffeine.recipeapp.domain.IngredientRow;
+import com.musthavecaffeine.recipeapp.api.v1.model.RecipeDto;
 import com.musthavecaffeine.recipeapp.domain.Recipe;
-import com.musthavecaffeine.recipeapp.domain.RecipeDao;
-import com.musthavecaffeine.recipeapp.repositories.IngredientRepository;
-import com.musthavecaffeine.recipeapp.repositories.IngredientRowRepository;
-import com.musthavecaffeine.recipeapp.repositories.RecipeDaoRepository;
+import com.musthavecaffeine.recipeapp.domain.User;
 import com.musthavecaffeine.recipeapp.repositories.RecipeRepository;
+import com.musthavecaffeine.recipeapp.repositories.UserRepository;
+import com.musthavecaffeine.recipeapp.services.exceptions.ResourceNotFoundException;
+import com.musthavecaffeine.recipeapp.services.exceptions.UnauthorizedException;
 
-import ch.qos.logback.classic.Logger;
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Service
 public class RecipeServiceImpl implements RecipeService {
 
-	private final IngredientMapper ingredientMapper;
-
-	private final IngredientRepository ingredientRepository;
-	private final IngredientRowRepository ingredientRowRepository;
-	private final RecipeMapper recipeMapper;
-	private final RecipeDaoRepository recipeDaoRepository;
 	private final RecipeRepository recipeRepository;
-
-	public RecipeServiceImpl(IngredientMapper ingredientMapper, IngredientRepository ingredientRepository,
-			IngredientRowRepository ingredientRowRepository, RecipeMapper recipeMapper,
-			RecipeDaoRepository recipeDaoRepository, RecipeRepository recipeRepository) {
-		this.ingredientMapper = ingredientMapper;
-
-		this.ingredientRepository = ingredientRepository;
-		this.ingredientRowRepository = ingredientRowRepository;
-		this.recipeMapper = recipeMapper;
-		this.recipeDaoRepository = recipeDaoRepository;
+	
+	private final UserRepository userRepository;
+	
+	private final RecipeMapper recipeMapper;
+	
+	public RecipeServiceImpl(RecipeRepository recipeRepository, UserRepository userRepository, RecipeMapper recipeMapper) {
 		this.recipeRepository = recipeRepository;
+		this.userRepository = userRepository;
+		this.recipeMapper = recipeMapper;
 	}
 
-//	@Override
-//	public List<RecipeDTO> getAllRecipes() {
-//		log.debug("getAllRecipes called");
-//		return recipeRepository
-//				.findAll()
-//                .stream()
-//                .map(recipe -> {
-//                   RecipeDTO recipeDto = recipeMapper.recipeToRecipeDto(recipe);
-////                   recipeDTO.setRecipeUrl(getRecipeUrl(recipe.getId()));
-//                   return recipeDto;
-//                })
-//                .collect(Collectors.toList());
-//	}
-
-//	@Override
-//	public RecipeDTO getRecipeById(Long id) {
-//		log.debug("getIngredientById called with id: {}", id);
-//		
-//		System.out.println(">>>>>>>>>>> " + recipeRepository.findById(id)
-//		.map(recipeMapper::recipeToRecipeDto)
-//		.orElseThrow(ResourceNotFoundException::new).toString());
-//		
-//		return recipeRepository.findById(id)
-//				.map(recipeMapper::recipeToRecipeDto)
-//				.orElseThrow(ResourceNotFoundException::new);
-//	}
-
-
 	@Override
-	public List<RecipeDTO> getAllRecipes() {
-		log.debug("getAllRecipes called");
-
-		List<RecipeDTO> recipeDtoList = new ArrayList<RecipeDTO>();
-		List<RecipeDao> recipeDaoList = recipeDaoRepository.findAllPublicForUser();
-
-		RecipeDTO recipeDto = null;
-		for (RecipeDao recipeDao : recipeDaoList) {
-			if (recipeDto == null || recipeDto.getId() != recipeDao.getId()) {
-				log.debug("recipe: " + recipeDao.toString());
-				recipeDto = new RecipeDTO();
-				recipeDtoList.add(recipeDto);
-				recipeDto.setId(recipeDao.getId());
-				recipeDto.setName(recipeDao.getName());
-				recipeDto.setDescription(recipeDao.getDescription());
-				recipeDto.setImageUrl(recipeDao.getImageUrl());
-				recipeDto.setPreparationTime(recipeDao.getPreparationTime());
-
-				recipeDto.setNumberOfOneStarRatings(recipeDao.getNumberOfOneStarRatings());
-				recipeDto.setNumberOfTwoStarRatings(recipeDao.getNumberOfTwoStarRatings());
-				recipeDto.setNumberOfThreeStarRatings(recipeDao.getNumberOfThreeStarRatings());
-				recipeDto.setNumberOfFourStarRatings(recipeDao.getNumberOfFourStarRatings());
-				recipeDto.setNumberOfFiveStarRatings(recipeDao.getNumberOfFiveStarRatings());	
-			} 
-
-			IngredientDTO ingredientDto = new IngredientDTO();
-			ingredientDto.setId(recipeDao.getIngredientId());
-			ingredientDto.setName(recipeDao.getIngredientName());
-			ingredientDto.setAmount(recipeDao.getIngredientAmount());
-
-			recipeDto.addIngredient(ingredientDto);
-		}
-
-		return recipeDtoList;
-	}
-
-
-	@Override
-	public RecipeDTO getRecipeById(Long id) {
-		log.debug("getRecipeById called with id: {}", id);
-
-		List<RecipeDao> recipeDaoList = recipeDaoRepository.findById(id);
-
-		RecipeDTO recipeDto = null;
-		for (RecipeDao recipeDao : recipeDaoList) {
-
-			if (recipeDao == null) {
-				log.error("Huh? recipeDao == null!");
-				continue;
+	public List<RecipeDto> getAllRecipes(Long userId) {
+		ArrayList<RecipeDto> recipeDtos = new ArrayList<RecipeDto>();
+		
+		List<Recipe> recipes = recipeRepository.findAll();
+		for (Recipe recipe : recipes) {
+			// only expose recipes that the user is allowed to see
+			// alternatively we could have created a proper query to only
+			// get those recipes from the db
+			if (!recipe.getIsPrivate() || recipe.getUser().getId() == userId) {
+				recipeDtos.add(recipeMapper.recipeToRecipeDto(recipe));
 			}
-
-			if (recipeDto == null) {
-				log.info("recipeDao: " + recipeDao.toString());
-				recipeDto = new RecipeDTO();
-				recipeDto.setId(recipeDao.getId());
-				recipeDto.setName(recipeDao.getName());
-				recipeDto.setDescription(recipeDao.getDescription());
-				recipeDto.setImageUrl(recipeDao.getImageUrl());
-				recipeDto.setPreparationTime(recipeDao.getPreparationTime());
-
-				recipeDto.setNumberOfOneStarRatings(recipeDao.getNumberOfOneStarRatings());
-				recipeDto.setNumberOfTwoStarRatings(recipeDao.getNumberOfTwoStarRatings());
-				recipeDto.setNumberOfThreeStarRatings(recipeDao.getNumberOfThreeStarRatings());
-				recipeDto.setNumberOfFourStarRatings(recipeDao.getNumberOfFourStarRatings());
-				recipeDto.setNumberOfFiveStarRatings(recipeDao.getNumberOfFiveStarRatings());	
-			} 
-
-			IngredientDTO ingredientDto = new IngredientDTO();
-			ingredientDto.setId(recipeDao.getIngredientId());
-			ingredientDto.setName(recipeDao.getIngredientName());
-			ingredientDto.setAmount(recipeDao.getIngredientAmount());
-
-			recipeDto.addIngredient(ingredientDto);
 		}
+		
+		return recipeDtos;
+	}
+
+	@Override
+	public RecipeDto getRecipeById(Long id, Long userId) {
+		Recipe recipe = recipeRepository
+				.findById(id)
+				.orElseThrow(ResourceNotFoundException::new);
+
+		if (recipe.getUser().getId() != userId) {
+			throw new UnauthorizedException();
+		}
+		
+		return recipeMapper.recipeToRecipeDto(recipe);
+	}
+
+	@Override
+	public RecipeDto createNewRecipe(RecipeDto recipeDto, Long userId) {
+		
+		User user = userRepository
+				.findById(userId)
+				.orElseThrow(UnauthorizedException::new);
+		
+		Recipe recipe = recipeMapper.recipeDtoToRecipe(user, recipeDto);
+		return recipeMapper.recipeToRecipeDto(recipeRepository.save(recipe));
+	}
+
+	@Override
+	public RecipeDto updateRecipe(RecipeDto recipeDto, Long userId) {
+		
+		if (recipeDto.getUserId() != userId) {
+			throw new UnauthorizedException();
+		}
+		
+		Recipe recipe = recipeRepository
+				.findById(recipeDto.getId())
+				.orElseThrow(ResourceNotFoundException::new);
+		
+		recipeMapper.recipeDtoToRecipe(recipe.getUser(), recipeDto, recipe);
+		
+		recipeDto = recipeMapper.recipeToRecipeDto(recipeRepository.save(recipe));
 
 		return recipeDto;
-	}	
+	}
 
 	@Override
-	public RecipeDTO createNewRecipe(RecipeDTO recipeDto) {
-		log.info("createNewRecipe called: {}", recipeDto.toString());
-
-		Recipe recipe = recipeMapper.recipeDtoToRecipe(recipeDto);
-
-		Recipe savedRecipe = recipeRepository.save(recipe);
-
-		for (IngredientDTO ingredientDto : recipeDto.getIngredients()) {
-			log.info("{}", ingredientDto.toString());
-
-			Ingredient ingredient = ingredientRepository.findById(ingredientDto.getId())
-					.orElseThrow(ResourceNotFoundException::new);
-
-			IngredientRow ir = new IngredientRow();
-			ir.setAmount(ingredientDto.getAmount());
-			ir.setIngredient(ingredient);
-			ir.setRecipe(savedRecipe);
-
-			ingredientRowRepository.save(ir);
+	public void deleteRecipeById(Long id, Long userId) {
+		
+		Recipe recipe = recipeRepository
+				.findById(id)
+				.orElseThrow(ResourceNotFoundException::new);
+		
+		if (recipe.getUser().getId() == userId) {
+			recipeRepository.deleteById(id);
+		} else {
+			throw new UnauthorizedException();
 		}
-
-		recipeDto.setId(savedRecipe.getId());
-		return recipeDto;
-
-//		return saveAndReturnDto(recipe);
-	}
-
-	@Override
-	public RecipeDTO saveRecipeByDto(Long id, RecipeDTO recipeDto) {
-		log.debug("saveRecipeByDto called: {}", recipeDto.toString());
-		Recipe recipe = recipeMapper.recipeDtoToRecipe(recipeDto);
-		recipe.setId(id);
-		return saveAndReturnDto(recipe);
-	}
-
-	@Override
-	public void deleteRecipeById(Long id) {
-		log.debug("deleteRecipeById called with id: {}", id);
-//		ingredientRowRepository.deleteByRecipeId(id);
-//		recipeRepository.deleteById(id);
-		recipeDaoRepository.deleteById(id);
-	}
-
-	private RecipeDTO saveAndReturnDto(Recipe recipe) {
-		Recipe savedRecipe = recipeRepository.save(recipe);
-		RecipeDTO returnDto = recipeMapper.recipeToRecipeDto(savedRecipe);
-		return returnDto;
 	}
 
 }
