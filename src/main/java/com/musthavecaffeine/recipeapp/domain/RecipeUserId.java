@@ -12,23 +12,24 @@ import javax.persistence.Embeddable;
 // https://thoughts-on-java.org/many-relationships-additional-properties/
 
 @Embeddable
-public class RecipeIngredientId implements Serializable {
+public class RecipeUserId implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Column(name = "recipe_id")
 	private Long recipeId;
 
-	@Column(name = "ingredient_id")
-	private Long ingredientId;
+	@Column(name = "user_id")
+	private Long userId;
 
-	public RecipeIngredientId() {
+	public RecipeUserId() {
 
 	}
 
-	public RecipeIngredientId(Long recipeId, Long ingredientId) {
+	public RecipeUserId(Long recipeId, Long ingredientId) {
+
 		this.recipeId = recipeId;
-		this.ingredientId = ingredientId;
+		this.userId = ingredientId;
 	}
 
 	public Long getRecipeId() {
@@ -39,12 +40,12 @@ public class RecipeIngredientId implements Serializable {
 		this.recipeId = recipeId;
 	}
 
-	public Long getIngredientId() {
-		return ingredientId;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setIngredientId(Long ingredientId) {
-		this.ingredientId = ingredientId;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
     @Override
@@ -54,13 +55,13 @@ public class RecipeIngredientId implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        RecipeIngredientId that = (RecipeIngredientId) o;
+        RecipeUserId that = (RecipeUserId) o;
         return Objects.equals(recipeId, that.recipeId) &&
-               Objects.equals(ingredientId, that.ingredientId);
+               Objects.equals(userId, that.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(recipeId, ingredientId);
+        return Objects.hash(recipeId, userId);
     }
 }

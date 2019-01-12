@@ -27,7 +27,7 @@ public class ShoppingListController {
 	public static final String BASE_URL = "/api/v1/shoppinglist";
 
 	// temporary workaround till we have Spring Security in place
-	public static final Long userId = 0L;
+	public static final Long userId = 1L;
 	
 	private final ShoppingListService shoppingListService;
 	

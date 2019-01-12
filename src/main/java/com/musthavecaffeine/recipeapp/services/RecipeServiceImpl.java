@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.musthavecaffeine.recipeapp.api.v1.mapper.RecipeMapper;
 import com.musthavecaffeine.recipeapp.api.v1.model.RecipeDto;
 import com.musthavecaffeine.recipeapp.domain.Recipe;
+import com.musthavecaffeine.recipeapp.domain.RecipeUser;
 import com.musthavecaffeine.recipeapp.domain.User;
 import com.musthavecaffeine.recipeapp.repositories.RecipeRepository;
 import com.musthavecaffeine.recipeapp.repositories.UserRepository;
@@ -102,6 +103,39 @@ public class RecipeServiceImpl implements RecipeService {
 		} else {
 			throw new UnauthorizedException();
 		}
+	}
+
+	@Override
+	public RecipeDto updateRecipeRating(Long id, Long rating, Long userId) {
+		Recipe recipe = recipeRepository
+				.findById(id)
+				.orElseThrow(ResourceNotFoundException::new);
+
+		Long oldRating = 0L;
+		RecipeUser recipeUser = null;
+		for (RecipeUser r : recipe.getUsers()) {
+			if (r.getUser().getId() == userId) {
+				recipeUser = r;
+				break;
+			}
+		}
+
+		if (recipeUser != null) {
+			oldRating = recipeUser.getRating();
+			recipeUser.setRating(rating);
+		} else {
+			User user = recipe.getUser();
+			recipeUser = new RecipeUser();
+			recipeUser.setRecipe(recipe);
+			recipeUser.setUser(user);
+			recipeUser.setRating(rating);
+
+			recipe.addUserRating(user, rating);
+		}
+
+		recipe.updateRating(oldRating, rating);
+
+		return recipeMapper.recipeToRecipeDto(recipe);
 	}
 
 }
