@@ -49,6 +49,11 @@ public class Recipe {
 			orphanRemoval = true)
 	private List<RecipeIngredient> ingredients = new ArrayList<>();
 
+	@OneToMany(
+			mappedBy = "recipe",
+			cascade = CascadeType.ALL,
+			orphanRemoval = true)
+	private List<RecipeUser> users = new ArrayList<>();
 
 	public Long getId() {
 		return id;
@@ -146,14 +151,6 @@ public class Recipe {
 		this.ratingAverage = ratingAverage;
 	}
 
-	public List<RecipeIngredient> getIngredients() {
-		return ingredients;
-	}
-	
-	public void setIngredients(List<RecipeIngredient> ingredients) {
-		this.ingredients = ingredients;
-	}
-
 	public User getUser() {
 		return user;
 	}
@@ -162,17 +159,25 @@ public class Recipe {
 		this.user = user;
 	}
 
+	public List<RecipeIngredient> getIngredients() {
+		return ingredients;
+	}
+
+	public void setIngredients(List<RecipeIngredient> ingredients) {
+		this.ingredients = ingredients;
+	}
+
 	public void addIngredient(Ingredient ingredient, Float amount) {
 		RecipeIngredient recipeIngredient = new RecipeIngredient(this, ingredient, amount);
 		ingredients.add(recipeIngredient);
 		ingredient.addRecipe(recipeIngredient);
 	}
-	
+
 	public void removeIngredient(Ingredient ingredient) {
 		for (Iterator<RecipeIngredient> iterator = ingredients.iterator();
 				iterator.hasNext();) {
 			RecipeIngredient recipeIngredient = iterator.next();
-			
+
 			if (recipeIngredient.getRecipe().equals(this) &&
 					recipeIngredient.getIngredient().equals(ingredient)) {
 				iterator.remove();
@@ -181,6 +186,97 @@ public class Recipe {
 				recipeIngredient.setIngredient(null);
 			}
 		}
+	}
+
+	public List<RecipeUser> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<RecipeUser> users) {
+		this.users = users;
+	}
+
+	public void addUserRating(User user, Long rating) {
+		RecipeUser recipeUser = new RecipeUser(this, user, rating);
+		users.add(recipeUser);
+		user.addRecipeUser(recipeUser);
+	}
+
+	public void removeUserRating(User user) {
+		for (Iterator<RecipeUser> iterator = users.iterator();
+				iterator.hasNext();) {
+			RecipeUser recipeUser = iterator.next();
+
+			if (recipeUser.getRecipe().equals(this) &&
+					recipeUser.getUser().equals(user)) {
+				iterator.remove();
+				recipeUser.getUser().removeRecipeUser(recipeUser);
+				recipeUser.setRecipe(null);
+				recipeUser.setUser(null);
+			}
+		}
+	}
+
+	public void updateRating(Long oldRating, Long newRating) {
+
+		if (oldRating == newRating || oldRating > 5 || newRating > 5) {
+			// nothing to update
+			return;
+		}
+
+		if (numberOfOneStarRatings == null) {numberOfOneStarRatings = 0L;}
+		if (numberOfTwoStarRatings == null) {numberOfTwoStarRatings = 0L;}
+		if (numberOfThreeStarRatings == null) {numberOfThreeStarRatings = 0L;}
+		if (numberOfFourStarRatings == null) {numberOfFourStarRatings = 0L;}
+		if (numberOfFiveStarRatings == null) {numberOfFiveStarRatings = 0L;}
+
+		switch(oldRating.intValue()) {
+		case 1:
+			numberOfOneStarRatings--;
+			break;
+		case 2:
+			numberOfTwoStarRatings--;
+			break;
+		case 3:
+			numberOfThreeStarRatings--;
+			break;
+		case 4:
+			numberOfFourStarRatings--;
+			break;
+		case 5:
+			numberOfFiveStarRatings--;
+			break;
+		default:
+				// do nothing
+		}
+
+		switch(newRating.intValue()) {
+		case 1:
+			numberOfOneStarRatings++;
+			break;
+		case 2:
+			numberOfTwoStarRatings++;
+			break;
+		case 3:
+			numberOfThreeStarRatings++;
+			break;
+		case 4:
+			numberOfFourStarRatings++;
+			break;
+		case 5:
+			numberOfFiveStarRatings++;
+			break;
+		default:
+				// do nothing
+		}
+
+		Long totalRatings = numberOfOneStarRatings + numberOfTwoStarRatings
+							+ numberOfThreeStarRatings + numberOfFourStarRatings
+							+ numberOfFiveStarRatings;
+
+		ratingAverage = (numberOfOneStarRatings.floatValue() + numberOfTwoStarRatings * 2
+						+ numberOfThreeStarRatings * 3 + numberOfFourStarRatings * 4
+						+ numberOfFiveStarRatings * 5) / totalRatings;
 	}
 	
 	@Override
